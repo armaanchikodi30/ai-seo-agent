@@ -7,7 +7,9 @@ from tools.keyword_planner import generate_keyword_plan
 from tools.seo_planner import generate_seo_plan
 from tools.linkedin_planner import generate_linkedin_strategy
 from tools.report import generate_report
-
+from tools.technical_seo import technical_seo_audit
+from tools.seo_score import calculate_seo_score
+from tools.content_gap import generate_content_gap
 
 class SEOAgent:
 
@@ -29,7 +31,19 @@ class SEOAgent:
         print("✓ Website Crawled")
 
         print("\n==============================")
-        print("Step 2 : Business Analysis...")
+        print("Step 2 : Technical SEO Audit...")
+        print("==============================")
+
+        technical = technical_seo_audit.invoke(
+            {
+                "website": website
+            }
+        )
+
+        print("✓ Technical SEO Audit Completed")
+
+        print("\n==============================")
+        print("Step 3 : Business Analysis...")
         print("==============================")
 
         business = analyze_business.invoke(
@@ -41,7 +55,7 @@ class SEOAgent:
         print("✓ Business Analyzed")
 
         print("\n==============================")
-        print("Step 3 : Finding Competitors...")
+        print("Step 4 : Finding Competitors...")
         print("==============================")
 
         competitors = find_competitors.invoke(
@@ -53,7 +67,7 @@ class SEOAgent:
         print("✓ Competitors Found")
 
         print("\n==============================")
-        print("Step 4 : Keyword Planning...")
+        print("Step 5 : Keyword Planning...")
         print("==============================")
 
         keywords = generate_keyword_plan.invoke(
@@ -66,7 +80,7 @@ class SEOAgent:
         print("✓ Keyword Plan Generated")
 
         print("\n==============================")
-        print("Step 5 : SEO Content Plan...")
+        print("Step 6 : SEO Content Plan...")
         print("==============================")
 
         seo = generate_seo_plan.invoke(
@@ -79,7 +93,37 @@ class SEOAgent:
         print("✓ SEO Content Plan Generated")
 
         print("\n==============================")
-        print("Step 6 : LinkedIn Strategy...")
+        print("Step 7 : Content Gap Analysis...")
+        print("==============================")
+
+        content_gap = generate_content_gap.invoke(
+            {
+                "business": business,
+                "competitors": competitors,
+                "keywords": keywords,
+                "seo": seo
+            }
+        )
+
+        print("✓ Content Gap Analysis Completed")
+
+        print("\n==============================")
+        print("Step 8 : SEO Score Dashboard...")
+        print("==============================")
+
+        score = calculate_seo_score.invoke(
+            {
+                "technical": technical,
+                "competitors": competitors,
+                "keywords": keywords,
+                "seo": seo
+            }
+        )
+
+        print("✓ SEO Score Generated")
+
+        print("\n==============================")
+        print("Step 9 : LinkedIn Strategy...")
         print("==============================")
 
         linkedin = generate_linkedin_strategy.invoke(
@@ -92,10 +136,13 @@ class SEOAgent:
         print("✓ LinkedIn Strategy Generated")
 
         report = generate_report(
+            technical,
             business,
             competitors,
             keywords,
             seo,
+            score,
+            content_gap,
             linkedin
         )
 
