@@ -1,14 +1,12 @@
 import json
 
 from langchain.tools import tool
-
-from tools.search_tool import google_search
-
-from config import llm
-
 from langchain_core.prompts import PromptTemplate
 
+from config import llm
 from prompts.prompts import COMPETITOR_PROMPT
+from tools.search_tool import google_search
+from utils.json_parser import parse_llm_response
 
 
 prompt = PromptTemplate(
@@ -21,25 +19,18 @@ prompt = PromptTemplate(
 
 
 @tool
-def find_competitors(business: str) -> str:
+def find_competitors(business: dict) -> dict:
     """
     Find competitors using Google Search.
     """
 
-    business_json = json.loads(
-        business.replace("```json", "").replace("```", "")
-    )
-
-    company = business_json["company_name"]
-
-    industry = business_json["industry"]
-
-    topics = business_json["main_topics"]
+    company = business["company_name"]
+    industry = business["industry"]
+    topics = business["main_topics"]
 
     query = f"best {industry} companies"
 
-    if len(topics):
-
+    if topics:
         query = f"{topics[0]} software companies"
 
     results = google_search.invoke(
@@ -52,9 +43,9 @@ def find_competitors(business: str) -> str:
 
     response = chain.invoke(
         {
-            "business": business,
+            "business": json.dumps(business, indent=2),
             "results": results
         }
     )
 
-    return response.content
+    return parse_llm_response(response)

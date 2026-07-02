@@ -4,6 +4,8 @@ from langchain_core.prompts import PromptTemplate
 from config import llm
 from prompts.prompts import BUSINESS_ANALYSIS_PROMPT
 
+from utils.json_parser import parse_llm_response
+
 
 prompt = PromptTemplate(
     input_variables=["website"],
@@ -12,7 +14,7 @@ prompt = PromptTemplate(
 
 
 @tool
-def analyze_business(website: str) -> str:
+def analyze_business(website: str) -> dict:
     """
     Analyze the crawled website and understand the business.
     """
@@ -25,4 +27,4 @@ def analyze_business(website: str) -> str:
         }
     )
 
-    return response.content
+    return parse_llm_response(response)

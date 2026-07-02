@@ -1,33 +1,16 @@
-import json
 from langchain.tools import tool
 
 
 @tool
 def calculate_seo_score(
-    technical: str,
-    competitors: str,
-    keywords: str,
-    seo: str
-):
+    technical: dict,
+    competitors: dict,
+    keywords: dict,
+    seo: dict
+) -> dict:
     """
-    Calculates an overall SEO score.
+    Calculates an overall SEO score based on all generated analyses.
     """
-
-    technical = json.loads(
-        technical.replace("```json", "").replace("```", "")
-    )
-
-    competitors = json.loads(
-        competitors.replace("```json", "").replace("```", "")
-    )
-
-    keywords = json.loads(
-        keywords.replace("```json", "").replace("```", "")
-    )
-
-    seo = json.loads(
-        seo.replace("```json", "").replace("```", "")
-    )
 
     # ----------------------------
     # Technical Score
@@ -45,15 +28,22 @@ def calculate_seo_score(
         competitors.get("competitors", [])
     )
 
-    if total_competitors > 5:
+    if total_competitors >= 5:
+        competitor_score = 90
+    elif total_competitors >= 3:
         competitor_score = 80
+    else:
+        competitor_score = 70
 
     # ----------------------------
     # Keyword Score
     # ----------------------------
 
     keyword_score = min(
-        len(keywords.get("primary_keywords", [])) * 10,
+        (
+            len(keywords.get("primary_keywords", [])) * 10
+            + len(keywords.get("secondary_keywords", [])) * 5
+        ),
         100
     )
 
@@ -63,31 +53,32 @@ def calculate_seo_score(
 
     content_score = min(
         (
-            len(seo.get("pillar_pages", []))
-            + len(seo.get("blog_topics", []))
-            + len(seo.get("faq_topics", []))
-        )
-        * 2,
+            len(seo.get("pillar_pages", [])) * 8
+            + len(seo.get("landing_pages", [])) * 6
+            + len(seo.get("blog_topics", [])) * 3
+            + len(seo.get("faq_topics", [])) * 2
+        ),
         100
     )
 
-    overall = round(
+    # ----------------------------
+    # Overall Score
+    # ----------------------------
+
+    overall_score = round(
         (
             technical_score * 0.40
             + keyword_score * 0.20
             + content_score * 0.20
             + competitor_score * 0.20
         ),
-        2,
+        2
     )
 
-    return json.dumps(
-        {
-            "overall_score": overall,
-            "technical_score": technical_score,
-            "content_score": content_score,
-            "keyword_score": keyword_score,
-            "competitor_score": competitor_score,
-        },
-        indent=4,
-    )
+    return {
+        "overall_score": overall_score,
+        "technical_score": technical_score,
+        "content_score": content_score,
+        "keyword_score": keyword_score,
+        "competitor_score": competitor_score
+    }
