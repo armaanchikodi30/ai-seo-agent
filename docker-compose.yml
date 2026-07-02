@@ -1,0 +1,20 @@
+services:
+  ai-seo-agent:
+    build: .
+    image: ai-seo-agent:latest
+    container_name: ai-seo-agent
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      # Bind only to localhost — host Nginx will reverse-proxy to this.
+      # Do NOT expose 0.0.0.0:8501 publicly; let Nginx be the only public entrypoint.
+      - "127.0.0.1:8501:8501"
+    volumes:
+      - ./reports:/app/reports
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8501/_stcore/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s

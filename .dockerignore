@@ -1,0 +1,15 @@
+.git
+.gitignore
+.kimchi
+__pycache__
+*.pyc
+venv/
+.venv/
+.env
+reports/
+.DS_Store
+Thumbs.db
+docker-compose.yml
+Dockerfile
+README.md
+
